@@ -1,4 +1,6 @@
 package io.flowing.retail.concept.domain;
+import java.util.Map;
+
 import io.flowing.retail.concept.infrastructure.Bus;
 import io.flowing.retail.concept.infrastructure.BusObserver;
 import io.flowing.retail.concept.infrastructure.Event;
@@ -11,13 +13,13 @@ public class Shipping implements BusObserver {
   
   public void eventReceived(Event event) {
     if (event.is("GoodsFetched")) {
-      shipGoods();
+      shipGoods(event.getPayload());
     } // otherwise we do not care here    
   }
   
-  public void shipGoods() {
+  public void shipGoods(Map<String, Object> payload) {
     System.out.println("ship goods");
-    Bus.send( new Event("GoodsShipped", "{ ...}"));
+    Bus.send( new Event("GoodsShipped", payload));
   }
 
 }

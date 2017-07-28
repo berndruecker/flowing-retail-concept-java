@@ -1,4 +1,5 @@
 package io.flowing.retail.concept.domain;
+import io.flowing.retail.concept.helper.Maps;
 import io.flowing.retail.concept.infrastructure.Bus;
 import io.flowing.retail.concept.infrastructure.Event;
 
@@ -9,7 +10,7 @@ public class Shop {
   
   public void checkout() {
     System.out.println("place order");
-    Bus.send( new Event("OrderPlaced", "{ ...}"));
+    Bus.send( new Event("OrderPlaced", Maps.of("vip", true)));
   }
 
 }
