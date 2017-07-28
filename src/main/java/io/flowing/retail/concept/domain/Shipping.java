@@ -14,7 +14,7 @@ public class Shipping implements BusObserver {
   public void eventReceived(Event event) {
     if (event.is("GoodsFetched")) {
       shipGoods(event.getPayload());
-    } // otherwise we do not care here    
+    }  
   }
   
   public void shipGoods(Map<String, Object> payload) {

@@ -14,7 +14,7 @@ public class Inventory implements BusObserver {
   public void eventReceived(Event event) {
     if (event.is("PaymentReceived")) {
       fetchGoods(event.getPayload());
-    } // otherwise we do not care here    
+    }
   }
   
   public void fetchGoods(Map<String, Object> payload) {
