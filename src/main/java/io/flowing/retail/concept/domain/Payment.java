@@ -15,7 +15,7 @@ public class Payment implements BusObserver {
   public void eventReceived(Event event) {
     if (event.is("OrderPlaced")) {
       retrievePayment(event.getPayload());
-    } // otherwise we do not care here
+    }
   }
 
   public void retrievePayment(Map<String, Object> payload) {
