@@ -1,6 +1,7 @@
 package io.flowing.retail.concept;
 
 import io.flowing.retail.concept.domain.Inventory;
+import io.flowing.retail.concept.domain.Order;
 import io.flowing.retail.concept.domain.Payment;
 import io.flowing.retail.concept.domain.Shipping;
 import io.flowing.retail.concept.domain.Shop;
@@ -11,6 +12,7 @@ public class Application {
     Payment.init();
     Inventory.init();
     Shipping.init();
+    Order.init();
     
     Shop shop = new Shop();
     

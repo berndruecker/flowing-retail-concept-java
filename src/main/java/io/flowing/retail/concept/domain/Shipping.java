@@ -12,7 +12,7 @@ public class Shipping implements BusObserver {
   }
   
   public void eventReceived(Event event) {
-    if (event.is("GoodsFetched")) {
+    if (event.is("ShipGoodsCommand")) {
       shipGoods(event.getPayload());
     }  
   }

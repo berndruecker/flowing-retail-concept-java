@@ -13,7 +13,7 @@ public class Payment implements BusObserver {
   }
 
   public void eventReceived(Event event) {
-    if (event.is("OrderPlaced") && !(Boolean)event.getPayload().get("vip")) {
+    if (event.is("RetrievePaymentCommand")) {
         retrievePayment(event.getPayload());
     }
   }

@@ -12,10 +12,7 @@ public class Inventory implements BusObserver {
   }
 
   public void eventReceived(Event event) {
-    if (event.is("PaymentReceived") && !(Boolean)event.getPayload().get("vip")) {
-      fetchGoods(event.getPayload());
-    }
-    if (event.is("OrderPlaced") && (Boolean)event.getPayload().get("vip")) {
+    if (event.is("FetchGoodsCommand")) {
       fetchGoods(event.getPayload());
     }
   }
