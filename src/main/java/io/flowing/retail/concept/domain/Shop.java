@@ -8,9 +8,9 @@ public class Shop {
   public static void init() {    
   }
   
-  public void checkout() {
+  public void checkout(boolean vip) {
     System.out.println("place order");
-    Bus.send( new Event("OrderPlaced", Maps.of("vip", true)));
+    Bus.send( new Event("OrderPlaced", Maps.of("vip", vip)));
   }
 
 }

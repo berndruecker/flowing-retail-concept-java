@@ -13,7 +13,12 @@ public class Application {
     Shipping.init();
     
     Shop shop = new Shop();
-    shop.checkout();
+    
+    System.out.println("##### NO VIP: ");
+    shop.checkout(false);
+    
+    System.out.println("##### VIP: ");
+    shop.checkout(true);
 
   }
 
