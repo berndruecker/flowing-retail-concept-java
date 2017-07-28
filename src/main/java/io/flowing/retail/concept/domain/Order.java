@@ -11,11 +11,8 @@ public class Order implements BusObserver {
   }
 
   public void eventReceived(Event event) {
-    if (event.is("OrderPlaced") && !(Boolean)event.getPayload().get("vip")) {
+    if (event.is("OrderPlaced")) {
       Bus.send(new Event("RetrievePaymentCommand", event.getPayload()));
-    }
-    if (event.is("OrderPlaced") && (Boolean)event.getPayload().get("vip")) {
-      Bus.send(new Event("FetchGoodsCommand", event.getPayload()));
     }
     if (event.is("PaymentReceived")) {
       Bus.send(new Event("FetchGoodsCommand", event.getPayload()));
