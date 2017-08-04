@@ -1,5 +1,8 @@
 package io.flowing.retail.concept.domain;
-import io.flowing.retail.concept.helper.Maps;
+import java.util.UUID;
+
+import org.camunda.bpm.engine.variable.Variables;
+
 import io.flowing.retail.concept.infrastructure.Bus;
 import io.flowing.retail.concept.infrastructure.Event;
 
@@ -9,8 +12,9 @@ public class Shop {
   }
   
   public void checkout(boolean vip) {
-    System.out.println("place order");
-    Bus.send( new Event("OrderPlaced", Maps.of("vip", vip)));
+    String orderId = UUID.randomUUID().toString();
+    System.out.println("place order " + orderId);    
+    Bus.send( new Event("OrderPlaced", Variables.putValue("orderId", orderId).putValue("vip", vip)));
   }
 
 }
