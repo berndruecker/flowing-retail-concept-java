@@ -11,10 +11,10 @@ import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 
 import io.flowing.retail.concept.infrastructure.Bus;
-import io.flowing.retail.concept.infrastructure.BusObserver;
+import io.flowing.retail.concept.infrastructure.EventObserver;
 import io.flowing.retail.concept.infrastructure.Event;
 
-public class OrderCamunda implements BusObserver {
+public class OrderCamunda implements EventObserver {
 
   /**
    * Reasons for state handling
@@ -75,7 +75,7 @@ public class OrderCamunda implements BusObserver {
         .receiveTask("waitForGoods").message("GoodsFetched") //
           // Define some timeout behavior
           .boundaryEvent().timerWithDuration("PT2S") //
-             .serviceTask().camundaClass(CancelEverythingAdapter.class) //
+             .serviceTask().name("Cancel order").camundaClass(CancelEverythingAdapter.class) //
              .intermediateThrowEvent().compensateEventDefinition().compensateEventDefinitionDone() //
              .endEvent() // 
         // and go on in normal flow

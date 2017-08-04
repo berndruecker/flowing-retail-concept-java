@@ -1,6 +1,6 @@
 package io.flowing.retail.concept.infrastructure;
 
-public interface BusObserver {
+public interface EventObserver {
   
   void eventReceived(Event event);
 

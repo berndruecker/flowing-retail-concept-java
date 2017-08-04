@@ -3,10 +3,10 @@ package io.flowing.retail.concept.domain;
 import java.util.Map;
 
 import io.flowing.retail.concept.infrastructure.Bus;
-import io.flowing.retail.concept.infrastructure.BusObserver;
+import io.flowing.retail.concept.infrastructure.EventObserver;
 import io.flowing.retail.concept.infrastructure.Event;
 
-public class Payment implements BusObserver {
+public class Payment implements EventObserver {
 
   public static void init() {
     Bus.register(new Payment());

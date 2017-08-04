@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 
 public class Bus {
 
-  private static List<BusObserver> observers = new ArrayList<BusObserver>();
+  private static List<EventObserver> observers = new ArrayList<EventObserver>();
 
   public static void send(Event event) {
     System.out.println("-- Event " + event.getEventName() + " -- " + mapAsString(event.getPayload()));
@@ -18,14 +18,14 @@ public class Bus {
           Thread.sleep(10);
         } catch (InterruptedException e) {
         }
-        for (BusObserver busObserver : observers) {
+        for (EventObserver busObserver : observers) {
           busObserver.eventReceived(event);
         }
       }
     }.start();
   }
 
-  public static void register(BusObserver observer) {
+  public static void register(EventObserver observer) {
     observers.add(observer);
   }
 
