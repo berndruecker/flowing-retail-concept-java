@@ -15,12 +15,13 @@ public class Application {
     
     System.out.println("##### NO VIP: ");
     shop.checkout(false);
-    Thread.sleep(1000);
+    
+    Thread.sleep(500);
     
     System.out.println("##### VIP: ");
     shop.checkout(true);
 
-    Thread.sleep(60000);
+    Thread.sleep(10000);
   }
 
 }
