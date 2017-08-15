@@ -1,18 +1,21 @@
 package io.flowing.retail.concept.domain;
 
 import java.io.File;
+import java.sql.SQLException;
 
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.impl.cfg.StandaloneInMemProcessEngineConfiguration;
+import org.camunda.bpm.engine.impl.history.HistoryLevel;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
+import org.h2.tools.Server;
 
 import io.flowing.retail.concept.infrastructure.Bus;
-import io.flowing.retail.concept.infrastructure.EventObserver;
 import io.flowing.retail.concept.infrastructure.Event;
+import io.flowing.retail.concept.infrastructure.EventObserver;
 
 public class OrderCamunda implements EventObserver {
 
@@ -25,13 +28,18 @@ public class OrderCamunda implements EventObserver {
    */
   private static ProcessEngine camunda;
   
-  public static void init() {
+  public static void init() throws SQLException {
     Bus.register(new OrderCamunda());
     
     // Configure Camunda engine (in this case using in memory H2)
     StandaloneInMemProcessEngineConfiguration conf = new StandaloneInMemProcessEngineConfiguration();
     conf.setJobExecutorActivate(true);
+    conf.setHistoryLevel(HistoryLevel.HISTORY_LEVEL_FULL);
+    conf.setJdbcUsername("sa");
+    conf.setJdbcPassword("sa");
     camunda = conf.buildProcessEngine();
+    // and start H2 database server to allow inspection from the outside
+    Server.createTcpServer(new String[] { "-tcpPort", "8092", "-tcpAllowOthers" }).start();
     
     // Define flow
     BpmnModelInstance flow = extendedFlowOfActivities();
