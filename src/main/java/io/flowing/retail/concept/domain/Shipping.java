@@ -15,9 +15,6 @@ public class Shipping implements EventObserver {
     if (event.is("GoodsFetched")) {
       shipGoods(event.getPayload());
     }  
-    // if (event.is("ShipGoodsCommand")) {
-    //   shipGoods(event.getPayload());
-    // }  
   }
   
   public void shipGoods(Map<String, Object> payload) {
