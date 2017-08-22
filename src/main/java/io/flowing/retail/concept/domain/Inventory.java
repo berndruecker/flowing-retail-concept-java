@@ -15,19 +15,7 @@ public class Inventory implements EventObserver {
   public void eventReceived(Event event) {
     if (event.is("PaymentReceived")) {
       fetchGoods(event.getPayload());
-    }
-    
-//    if (event.is("PaymentReceived") && !(Boolean) event.getPayload().get("vip")) {
-//      fetchGoods(event.getPayload());
-//    }
-//    if (event.is("OrderPlaced") && (Boolean) event.getPayload().get("vip")) {
-//      fetchGoods(event.getPayload());
-//    }
-
-    // if (event.is("FetchGoodsCommand")) {
-    //  fetchGoods(event.getPayload());
-    // }
-
+    }   
   }
 
   public void fetchGoods(Map<String, Object> payload) {
