@@ -13,16 +13,9 @@ public class Payment implements EventObserver {
   }
 
   public void eventReceived(Event event) {
-    if (event.is("OrderPlaced")) {
-      retrievePayment(event.getPayload());
+    if (event.is("RetrievePaymentCommand")) {
+       retrievePayment(event.getPayload());
     }
-    // if (event.is("OrderPlaced") && !(Boolean)event.getPayload().get("vip")) {
-    //   retrievePayment(event.getPayload());
-    // }
-    
-    // if (event.is("RetrievePaymentCommand")) {
-    //   retrievePayment(event.getPayload());
-    // }
   }
 
   public void retrievePayment(Map<String, Object> payload) {
