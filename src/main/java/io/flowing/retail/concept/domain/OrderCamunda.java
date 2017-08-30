@@ -58,29 +58,29 @@ public class OrderCamunda implements MessageObserver {
     ProcessBuilder flow = Bpmn.createExecutableProcess("order");    
     flow.startEvent()
         .serviceTask().name("Retrieve payment").camundaClass(RetrievePaymentAdapter.class) //
-        .receiveTask("waitForPayment").message("PaymentReceived") //
+        .receiveTask().name("Wait for payment").message("PaymentReceived") //
         .serviceTask().name("Fetch goods").camundaClass(FetchGoodsAdapter.class) //
-        .receiveTask("waitForGoods").message("GoodsFetched") //
+        .receiveTask().name("Wait for goods").message("GoodsFetched") //
         .serviceTask().name("Ship goods").camundaClass(ShipGoodsAdapter.class) //
-        .receiveTask("waitForShipping").message("GoodsShipped") //
+        .receiveTask().name("Wait for shipping").message("GoodsShipped") //
         .endEvent(); //
     return flow.done();
   }
   
   private static BpmnModelInstance extendedFlowOfActivities() {
     ProcessBuilder flow = Bpmn.createExecutableProcess("order");
-    flow.startEvent()
+    flow.startEvent().message("OrderCreatedEvent")
         .exclusiveGateway("split").condition("normal folks", "#{not vip}") //
           .serviceTask().name("Retrieve payment").camundaClass(RetrievePaymentAdapter.class) //
             .boundaryEvent().compensateEventDefinition().compensateEventDefinitionDone() //
             .compensationStart() //
               .serviceTask().name("refund payment").camundaClass(RefundPaymentAdapter.class) //
             .compensationDone() //
-          .receiveTask("waitForPayment").message("PaymentReceived") //
+          .receiveTask().name("Wait for payment").message("PaymentReceivedEvent") //
         // This is the point where we join the paths again
         .exclusiveGateway("join")
         .serviceTask().name("Fetch goods").camundaClass(FetchGoodsAdapter.class) //
-        .receiveTask("waitForGoods").message("GoodsFetched") //
+        .receiveTask("waitForGoods").name("Wait for goods").message("GoodsFetchedEvent") //
           // Define some timeout behavior
           .boundaryEvent().timerWithDuration("PT2S") //
              .serviceTask().name("Cancel order").camundaClass(CancelEverythingAdapter.class) //
@@ -89,7 +89,7 @@ public class OrderCamunda implements MessageObserver {
         // and go on in normal flow
         .moveToNode("waitForGoods")
         .serviceTask().name("Ship goods").camundaClass(ShipGoodsAdapter.class) //
-        .receiveTask("waitForShipping").message("GoodsShipped") //
+        .receiveTask().name("Wait for shipping").message("GoodsShippedEvent") //
         .endEvent() //
         // Now define the other path, where we don't do the payment
         .moveToNode("split").condition("VIP", "#{vip}").connectTo("join");
@@ -123,30 +123,26 @@ public class OrderCamunda implements MessageObserver {
     }
   }
   
-  public void received(Message event) {
-    if (event.is("OrderPlaced")) {
-      camunda.getRuntimeService().startProcessInstanceByKey("order", event.getPayload());
-      // now we need to persist some data, as we do not send everything along to payment      
-      // and you might want to answer questions like:
-      // - any order stuck?
-      // - how long does a typical order take to be paied, delivered, ...?
-      // - at which state do we have how much waiting orders (or how much sales is on the way)
-      // - ...
+  public void received(Message message) {
+    if (message.is("OrderPlacedEvent")) {
+      camunda.getRuntimeService().createMessageCorrelation(message.getName()) //
+        .setVariables(message.getPayload()) //
+        .correlateWithResult();      
     }
-    if (event.is("PaymentReceived")) {
-      camunda.getRuntimeService().createMessageCorrelation(event.getName()) //
-        .processInstanceVariableEquals("orderId", event.getPayload().get("orderId")) //
+    if (message.is("PaymentReceivedEvent")) {
+      camunda.getRuntimeService().createMessageCorrelation(message.getName()) //
+        .processInstanceVariableEquals("orderId", message.getPayload().get("orderId")) //
         .correlateWithResult();      
       // we need to wait for failure messages to trigger compensation of payment
     }
-    if (event.is("GoodsFetched")) {
-      camunda.getRuntimeService().createMessageCorrelation(event.getName()) //
-      .processInstanceVariableEquals("orderId", event.getPayload().get("orderId")) //
+    if (message.is("GoodsFetchedEvent")) {
+      camunda.getRuntimeService().createMessageCorrelation(message.getName()) //
+      .processInstanceVariableEquals("orderId", message.getPayload().get("orderId")) //
       .correlateWithResult();      
     }
-    if (event.is("GoodsShipped")) {
-      camunda.getRuntimeService().createMessageCorrelation(event.getName()) //
-      .processInstanceVariableEquals("orderId", event.getPayload().get("orderId")) //
+    if (message.is("GoodsShippedEvent")) {
+      camunda.getRuntimeService().createMessageCorrelation(message.getName()) //
+      .processInstanceVariableEquals("orderId", message.getPayload().get("orderId")) //
       .correlateWithResult();      
     }
   }
