@@ -1,24 +1,24 @@
 package io.flowing.retail.concept.domain;
 
 import io.flowing.retail.concept.infrastructure.Bus;
-import io.flowing.retail.concept.infrastructure.EventObserver;
-import io.flowing.retail.concept.infrastructure.Event;
+import io.flowing.retail.concept.infrastructure.MessageObserver;
+import io.flowing.retail.concept.infrastructure.Message;
 
-public class Order implements EventObserver {
+public class Order implements MessageObserver {
 
   public static void init() {
     Bus.register(new Order());
   }
   
-  public void eventReceived(Event event) {
-    if (event.is("OrderPlaced")) {
-      Bus.send(new Event("RetrievePaymentCommand", event.getPayload())); 
+  public void received(Message message) {
+    if (message.is("OrderPlacedEvent")) {
+      Bus.send(new Message("RetrievePaymentCommand", message.getPayload())); 
     }
-    if (event.is("PaymentReceived")) {
-      Bus.send(new Event("FetchGoodsCommand", event.getPayload()));      
+    if (message.is("PaymentReceivedEvent")) {
+      Bus.send(new Message("FetchGoodsCommand", message.getPayload()));      
     }
-    if (event.is("GoodsFetched")) {
-      Bus.send(new Event("ShipGoodsCommand", event.getPayload()));
+    if (message.is("GoodsFetchedEvent")) {
+      Bus.send(new Message("ShipGoodsCommand", message.getPayload()));
     }
   }
 

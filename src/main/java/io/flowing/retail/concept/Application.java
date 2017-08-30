@@ -14,13 +14,11 @@ public class Application {
     Shop shop = new Shop();
     
     System.out.println("##### NO VIP: ");
-    shop.checkout(false);
-    
+    shop.checkout(false);    
     Thread.sleep(500);
     
     System.out.println("##### VIP: ");
     shop.checkout(true);
-
     Thread.sleep(10000);
   }
 
