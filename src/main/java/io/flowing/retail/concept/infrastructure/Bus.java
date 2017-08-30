@@ -7,10 +7,10 @@ import java.util.Map.Entry;
 
 public class Bus {
 
-  private static List<EventObserver> observers = new ArrayList<EventObserver>();
+  private static List<MessageObserver> observers = new ArrayList<MessageObserver>();
 
-  public static void send(Event event) {
-    System.out.println("-- Event " + event.getEventName() + " -- " + mapAsString(event.getPayload()));
+  public static void send(Message message) {
+    System.out.println("-- Message " + message.getName() + " -- " + mapAsString(message.getPayload()));
     // process it asynchronously (as a real bus would do)
     new Thread() {
       public void run() {
@@ -18,14 +18,14 @@ public class Bus {
           Thread.sleep(10);
         } catch (InterruptedException e) {
         }
-        for (EventObserver busObserver : observers) {
-          busObserver.eventReceived(event);
+        for (MessageObserver busObserver : observers) {
+          busObserver.received(message);
         }
       }
     }.start();
   }
 
-  public static void register(EventObserver observer) {
+  public static void register(MessageObserver observer) {
     observers.add(observer);
   }
 
