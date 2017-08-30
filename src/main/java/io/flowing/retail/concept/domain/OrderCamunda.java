@@ -14,10 +14,10 @@ import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.h2.tools.Server;
 
 import io.flowing.retail.concept.infrastructure.Bus;
-import io.flowing.retail.concept.infrastructure.Event;
-import io.flowing.retail.concept.infrastructure.EventObserver;
+import io.flowing.retail.concept.infrastructure.Message;
+import io.flowing.retail.concept.infrastructure.MessageObserver;
 
-public class OrderCamunda implements EventObserver {
+public class OrderCamunda implements MessageObserver {
 
   /**
    * Reasons for state handling
@@ -99,31 +99,31 @@ public class OrderCamunda implements EventObserver {
   // Adapter classes doing the real work
   public static class RetrievePaymentAdapter implements JavaDelegate {
     public void execute(DelegateExecution ctx) throws Exception {
-      Bus.send(new Event("RetrievePaymentCommand", ctx.getVariables()));      
+      Bus.send(new Message("RetrievePaymentCommand", ctx.getVariables()));      
     }
   }
   public static class RefundPaymentAdapter implements JavaDelegate {
     public void execute(DelegateExecution ctx) throws Exception {
-      Bus.send(new Event("RefundPaymentCommand", ctx.getVariables()));      
+      Bus.send(new Message("RefundPaymentCommand", ctx.getVariables()));      
     }
   }
   public static class FetchGoodsAdapter implements JavaDelegate {
     public void execute(DelegateExecution ctx) throws Exception {
-      Bus.send(new Event("FetchGoodsCommand", ctx.getVariables()));      
+      Bus.send(new Message("FetchGoodsCommand", ctx.getVariables()));      
     }
   }
   public static class ShipGoodsAdapter implements JavaDelegate {
     public void execute(DelegateExecution ctx) throws Exception {
-      Bus.send(new Event("ShipGoodsCommand", ctx.getVariables()));      
+      Bus.send(new Message("ShipGoodsCommand", ctx.getVariables()));      
     }
   }
   public static class CancelEverythingAdapter implements JavaDelegate {
     public void execute(DelegateExecution ctx) throws Exception {
-      Bus.send(new Event("OrderCanceledEvent", ctx.getVariables()));      
+      Bus.send(new Message("OrderCanceledEvent", ctx.getVariables()));      
     }
   }
   
-  public void eventReceived(Event event) {
+  public void received(Message event) {
     if (event.is("OrderPlaced")) {
       camunda.getRuntimeService().startProcessInstanceByKey("order", event.getPayload());
       // now we need to persist some data, as we do not send everything along to payment      
@@ -134,18 +134,18 @@ public class OrderCamunda implements EventObserver {
       // - ...
     }
     if (event.is("PaymentReceived")) {
-      camunda.getRuntimeService().createMessageCorrelation(event.getEventName()) //
+      camunda.getRuntimeService().createMessageCorrelation(event.getName()) //
         .processInstanceVariableEquals("orderId", event.getPayload().get("orderId")) //
         .correlateWithResult();      
       // we need to wait for failure messages to trigger compensation of payment
     }
     if (event.is("GoodsFetched")) {
-      camunda.getRuntimeService().createMessageCorrelation(event.getEventName()) //
+      camunda.getRuntimeService().createMessageCorrelation(event.getName()) //
       .processInstanceVariableEquals("orderId", event.getPayload().get("orderId")) //
       .correlateWithResult();      
     }
     if (event.is("GoodsShipped")) {
-      camunda.getRuntimeService().createMessageCorrelation(event.getEventName()) //
+      camunda.getRuntimeService().createMessageCorrelation(event.getName()) //
       .processInstanceVariableEquals("orderId", event.getPayload().get("orderId")) //
       .correlateWithResult();      
     }
