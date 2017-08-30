@@ -58,11 +58,11 @@ public class OrderCamunda implements EventObserver {
     ProcessBuilder flow = Bpmn.createExecutableProcess("order");    
     flow.startEvent()
         .serviceTask().name("Retrieve payment").camundaClass(RetrievePaymentAdapter.class) //
-        .receiveTask("waitForPayment").message("PaymentReceived") //
+        .receiveTask().name("Wait for payment").message("PaymentReceived") //
         .serviceTask().name("Fetch goods").camundaClass(FetchGoodsAdapter.class) //
-        .receiveTask("waitForGoods").message("GoodsFetched") //
+        .receiveTask().name("Wait for goods").message("GoodsFetched") //
         .serviceTask().name("Ship goods").camundaClass(ShipGoodsAdapter.class) //
-        .receiveTask("waitForShipping").message("GoodsShipped") //
+        .receiveTask().name("Wait for shipping").message("GoodsShipped") //
         .endEvent(); //
     return flow.done();
   }
@@ -76,11 +76,11 @@ public class OrderCamunda implements EventObserver {
             .compensationStart() //
               .serviceTask().name("refund payment").camundaClass(RefundPaymentAdapter.class) //
             .compensationDone() //
-          .receiveTask("waitForPayment").message("PaymentReceived") //
+          .receiveTask().name("Wait for payment").message("PaymentReceived") //
         // This is the point where we join the paths again
         .exclusiveGateway("join")
         .serviceTask().name("Fetch goods").camundaClass(FetchGoodsAdapter.class) //
-        .receiveTask("waitForGoods").message("GoodsFetched") //
+        .receiveTask("waitForGoods").name("Wait for goods").message("GoodsFetched") //
           // Define some timeout behavior
           .boundaryEvent().timerWithDuration("PT2S") //
              .serviceTask().name("Cancel order").camundaClass(CancelEverythingAdapter.class) //
@@ -89,7 +89,7 @@ public class OrderCamunda implements EventObserver {
         // and go on in normal flow
         .moveToNode("waitForGoods")
         .serviceTask().name("Ship goods").camundaClass(ShipGoodsAdapter.class) //
-        .receiveTask("waitForShipping").message("GoodsShipped") //
+        .receiveTask().name("waitForShipping").message("GoodsShipped") //
         .endEvent() //
         // Now define the other path, where we don't do the payment
         .moveToNode("split").condition("VIP", "#{vip}").connectTo("join");
