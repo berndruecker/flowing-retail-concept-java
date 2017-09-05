@@ -56,20 +56,20 @@ public class OrderCamunda implements MessageObserver {
   @SuppressWarnings("unused")
   private static BpmnModelInstance simpleFlowOfActivities() {
     ProcessBuilder flow = Bpmn.createExecutableProcess("order");    
-    flow.startEvent()
+    flow.startEvent().message("OrderPlacedEvent")
         .serviceTask().name("Retrieve payment").camundaClass(RetrievePaymentAdapter.class) //
-        .receiveTask().name("Wait for payment").message("PaymentReceived") //
+        .receiveTask().name("Wait for payment").message("PaymentReceivedEvent") //
         .serviceTask().name("Fetch goods").camundaClass(FetchGoodsAdapter.class) //
-        .receiveTask().name("Wait for goods").message("GoodsFetched") //
+        .receiveTask().name("Wait for goods").message("GoodsFetchedEvent") //
         .serviceTask().name("Ship goods").camundaClass(ShipGoodsAdapter.class) //
-        .receiveTask().name("Wait for shipping").message("GoodsShipped") //
+        .receiveTask().name("Wait for shipping").message("GoodsShippedEvent") //
         .endEvent(); //
     return flow.done();
   }
   
   private static BpmnModelInstance extendedFlowOfActivities() {
     ProcessBuilder flow = Bpmn.createExecutableProcess("order");
-    flow.startEvent().message("OrderCreatedEvent")
+    flow.startEvent().message("OrderPlacedEvent")
         .exclusiveGateway("split").condition("normal folks", "#{not vip}") //
           .serviceTask().name("Retrieve payment").camundaClass(RetrievePaymentAdapter.class) //
             .boundaryEvent().compensateEventDefinition().compensateEventDefinitionDone() //
