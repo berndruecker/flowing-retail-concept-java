@@ -13,13 +13,14 @@ public class Payment implements MessageObserver {
   }
 
   public void received(Message message) {
-    if (message.is("OrderPlaced")) {
+    if (message.is("OrderPlacedEvent")) {
       retrievePayment(message.getPayload());
     }
   }
 
   public void retrievePayment(Map<String, Object> payload) {
-    Bus.send(new Message("PaymentReceived", payload));
+    System.out.println("receive payment");
+    Bus.send(new Message("PaymentReceivedEvent", payload));
   }
 
 }

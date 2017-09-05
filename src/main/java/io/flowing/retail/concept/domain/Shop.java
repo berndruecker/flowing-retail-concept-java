@@ -13,7 +13,7 @@ public class Shop {
   
   public void checkout(boolean vip) {
     String orderId = UUID.randomUUID().toString();
-    System.out.println("place order " + orderId);    
+    System.out.println("checkout order " + orderId);    
     Bus.send( //
         new Message( //
             "OrderPlacedEvent", //
