@@ -56,7 +56,7 @@ public class Order implements MessageObserver {
   @SuppressWarnings("unused")
   private static BpmnModelInstance simpleFlowOfActivities() {
     ProcessBuilder flow = Bpmn.createExecutableProcess("order");    
-    flow.startEvent()
+    flow.startEvent().message("OrderPlacedEvent")
         .serviceTask().name("Retrieve payment").camundaClass(RetrievePaymentAdapter.class) //
         .receiveTask().name("Wait for payment").message("PaymentReceivedEvent") //
         .serviceTask().name("Fetch goods").camundaClass(FetchGoodsAdapter.class) //
@@ -69,7 +69,7 @@ public class Order implements MessageObserver {
   
   private static BpmnModelInstance extendedFlowOfActivities() {
     ProcessBuilder flow = Bpmn.createExecutableProcess("order");
-    flow.startEvent()
+    flow.startEvent().message("OrderPlacedEvent")
         .exclusiveGateway("split").condition("normal folks", "#{not vip}") //
           .serviceTask().name("Retrieve payment").camundaClass(RetrievePaymentAdapter.class) //
             .boundaryEvent().compensateEventDefinition().compensateEventDefinitionDone() //
@@ -89,7 +89,7 @@ public class Order implements MessageObserver {
         // and go on in normal flow
         .moveToNode("waitForGoods")
         .serviceTask().name("Ship goods").camundaClass(ShipGoodsAdapter.class) //
-        .receiveTask().name("waitForShipping").message("GoodsShippedEvent") //
+        .receiveTask().name("Wait for shipping").message("GoodsShippedEvent") //
         .endEvent() //
         // Now define the other path, where we don't do the payment
         .moveToNode("split").condition("VIP", "#{vip}").connectTo("join");
@@ -125,13 +125,9 @@ public class Order implements MessageObserver {
   
   public void received(Message message) {
     if (message.is("OrderPlacedEvent")) {
-      camunda.getRuntimeService().startProcessInstanceByKey("order", message.getPayload());
-      // now we need to persist some data, as we do not send everything along to payment      
-      // and you might want to answer questions like:
-      // - any order stuck?
-      // - how long does a typical order take to be paied, delivered, ...?
-      // - at which state do we have how much waiting orders (or how much sales is on the way)
-      // - ...
+      camunda.getRuntimeService().createMessageCorrelation(message.getName()) //
+        .setVariables(message.getPayload()) //
+        .correlateWithResult();      
     }
     if (message.is("PaymentReceivedEvent")) {
       camunda.getRuntimeService().createMessageCorrelation(message.getName()) //
