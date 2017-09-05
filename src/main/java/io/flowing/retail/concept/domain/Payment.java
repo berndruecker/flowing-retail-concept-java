@@ -12,9 +12,9 @@ public class Payment implements MessageObserver {
     Bus.register(new Payment());
   }
 
-  public void received(Message event) {
-    if (event.is("OrderPlaced")) {
-      retrievePayment(event.getPayload());
+  public void received(Message message) {
+    if (message.is("OrderPlaced")) {
+      retrievePayment(message.getPayload());
     }
   }
 
