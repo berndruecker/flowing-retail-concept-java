@@ -9,7 +9,6 @@ public class Application {
     Inventory.init();
     Shipping.init();
     Order.init();
-    //OrderCamunda.init();
     
     Shop shop = new Shop();
     
