@@ -56,27 +56,27 @@ public class OrderCamunda implements MessageObserver {
   @SuppressWarnings("unused")
   private static BpmnModelInstance simpleFlowOfActivities() {
     ProcessBuilder flow = Bpmn.createExecutableProcess("order");    
-    flow.startEvent()
+    flow.startEvent().message("OrderPlacedEvent")
         .serviceTask().name("Retrieve payment").camundaClass(RetrievePaymentAdapter.class) //
-        .receiveTask().name("waitForPayment").message("PaymentReceivedEvent") //
+        .receiveTask().name("Wait for payment").message("PaymentReceivedEvent") //
         .serviceTask().name("Fetch goods").camundaClass(FetchGoodsAdapter.class) //
-        .receiveTask().name("waitForGoods").message("GoodsFetchedEvent") //
+        .receiveTask().name("Wait for goods").message("GoodsFetchedEvent") //
         .serviceTask().name("Ship goods").camundaClass(ShipGoodsAdapter.class) //
-        .receiveTask().name("waitForShipping").message("GoodsShippedEvent") //
+        .receiveTask().name("Wait for shipping").message("GoodsShippedEvent") //
         .endEvent(); //
     return flow.done();
   }
   
   private static BpmnModelInstance extendedFlowOfActivities() {
     ProcessBuilder flow = Bpmn.createExecutableProcess("order");
-    flow.startEvent().message("OrderCreatedEvent")
+    flow.startEvent().message("OrderPlacedEvent")
         .exclusiveGateway("split").condition("normal folks", "#{not vip}") //
           .serviceTask().name("Retrieve payment").camundaClass(RetrievePaymentAdapter.class) //
             .boundaryEvent().compensateEventDefinition().compensateEventDefinitionDone() //
             .compensationStart() //
               .serviceTask().name("refund payment").camundaClass(RefundPaymentAdapter.class) //
             .compensationDone() //
-          .receiveTask().name("Wait for payment").message("PaymentReceived") //
+          .receiveTask().name("Wait for payment").message("PaymentReceivedEvent") //
         // This is the point where we join the paths again
         .exclusiveGateway("join")
         .serviceTask().name("Fetch goods").camundaClass(FetchGoodsAdapter.class) //
