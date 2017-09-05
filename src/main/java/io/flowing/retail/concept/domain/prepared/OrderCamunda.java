@@ -1,4 +1,4 @@
-package io.flowing.retail.concept.domain;
+package io.flowing.retail.concept.domain.prepared;
 
 import java.io.File;
 import java.sql.SQLException;
