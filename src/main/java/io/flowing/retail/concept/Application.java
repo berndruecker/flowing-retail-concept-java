@@ -8,8 +8,6 @@ public class Application {
     Payment.init();
     Inventory.init();
     Shipping.init();
-    //Order.init();
-    //OrderCamunda.init();
     
     Shop shop = new Shop();
     
